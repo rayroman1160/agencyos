@@ -34,7 +34,7 @@ export async function createWikiPage(prevState: any, formData: FormData) {
         clientId: clientId || undefined
     });
 
-    if (!result.success) return { error: "Invalid input" };
+    if (!result.success) return { error: "Invalid input", success: false };
 
     await db.wikiPage.create({
         data: {
@@ -48,7 +48,7 @@ export async function createWikiPage(prevState: any, formData: FormData) {
     revalidatePath("/wiki");
     if (result.data.parentId) revalidatePath(`/wiki/${result.data.parentId}`);
 
-    return { success: true };
+    return { success: true, error: "" };
 }
 
 export async function updateWikiPage(prevState: any, formData: FormData) {
@@ -60,7 +60,7 @@ export async function updateWikiPage(prevState: any, formData: FormData) {
     const content = formData.get("content") as string;
 
     const result = updatePageSchema.safeParse({ pageId, title, content });
-    if (!result.success) return { error: "Invalid input" };
+    if (!result.success) return { error: "Invalid input", success: false };
 
     await db.wikiPage.update({
         where: { id: result.data.pageId },
@@ -71,5 +71,5 @@ export async function updateWikiPage(prevState: any, formData: FormData) {
     });
 
     revalidatePath(`/wiki/${result.data.pageId}`);
-    return { success: true };
+    return { success: true, error: "" };
 }

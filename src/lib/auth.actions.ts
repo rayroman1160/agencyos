@@ -4,12 +4,10 @@ import { lucia, validateRequest } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export async function logout() {
+export async function logout(_formData?: FormData) {
     const { session } = await validateRequest();
     if (!session) {
-        return {
-            error: "Unauthorized"
-        };
+        return redirect("/login");
     }
 
     await lucia.invalidateSession(session.id);

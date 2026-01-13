@@ -29,7 +29,7 @@ export async function createCustomField(prevState: any, formData: FormData) {
     const result = createFieldSchema.safeParse({ name, key, type, entityType, options: optionsRaw });
 
     if (!result.success) {
-        return { error: "Invalid input" };
+        return { error: "Invalid input", success: false };
     }
 
     const options = result.data.options ? result.data.options.split(",").map(s => s.trim()) : [];
@@ -46,17 +46,17 @@ export async function createCustomField(prevState: any, formData: FormData) {
         });
     } catch (e) {
         console.error(e);
-        return { error: "Failed to create field (Key might be duplicate)" };
+        return { error: "Failed to create field (Key might be duplicate)", success: false };
     }
 
     revalidatePath("/settings");
-    return { success: true };
+    return { success: true, error: "" };
 }
 
 export async function deleteCustomField(id: string) {
     const { user } = await validateRequest();
     if (!user || user.role !== "ADMIN") {
-        return { error: "Unauthorized" };
+        return;
     }
 
     await db.customFieldDefinition.delete({

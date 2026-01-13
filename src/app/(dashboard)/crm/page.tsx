@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { NewDealDialog } from "./NewDealDialog";
 
 export default async function CRMPage() {
     const { user } = await validateRequest();
@@ -26,68 +27,7 @@ export default async function CRMPage() {
         <div className="space-y-6 h-full flex flex-col">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold">CRM Pipeline</h1>
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button>New Deal</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Create New Deal</DialogTitle>
-                            <DialogDescription>Add a new lead to your pipeline.</DialogDescription>
-                        </DialogHeader>
-                        <form action={createDeal} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Deal Title</Label>
-                                <Input name="title" required placeholder="Project Alpha" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Value</Label>
-                                    <Input name="value" type="number" defaultValue="0" min="0" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Stage</Label>
-                                    <Select name="stageId" required defaultValue={stages[0]?.id}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {stages.map(stage => (
-                                                <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-
-                            {/* Custom Fields */}
-                            {customFields.length > 0 && (
-                                <div className="border-t pt-4 mt-4 space-y-4">
-                                    <p className="text-sm font-medium text-gray-500">Custom Fields</p>
-                                    {customFields.map(field => (
-                                        <div key={field.id} className="space-y-2">
-                                            <Label>{field.name}</Label>
-                                            {field.type === 'SELECT' ? (
-                                                <Select name={field.key}>
-                                                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                                                    <SelectContent>
-                                                        {field.options.map(opt => (
-                                                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            ) : (
-                                                <Input name={field.key} type={field.type === 'CURRENCY' ? 'number' : 'text'} />
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            <Button type="submit" className="w-full">Create Deal</Button>
-                        </form>
-                    </DialogContent>
-                </Dialog>
+                <NewDealDialog stages={stages} customFields={customFields} />
             </div>
 
             <div className="flex-1 overflow-x-auto">

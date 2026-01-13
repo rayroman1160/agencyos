@@ -3,11 +3,8 @@ import { validateRequest } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { createWikiPage } from "./actions";
 import { WikiEditor } from "./WikiEditor";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { CreateWikiPageDialog } from "./CreateWikiPageDialog";
 import Link from "next/link";
 import { FolderIcon, FileTextIcon } from "lucide-react";
 
@@ -39,19 +36,7 @@ export default async function WikiPage({
             <Card className="w-64 flex flex-col p-4 space-y-4">
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold">Knowledge Base</h2>
-                    <Dialog>
-                        <DialogTrigger asChild><Button size="sm" variant="outline">+</Button></DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader><DialogTitle>New Page</DialogTitle></DialogHeader>
-                            <form action={createWikiPage} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Title</Label>
-                                    <Input name="title" required />
-                                </div>
-                                <Button type="submit">Create</Button>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
+                    <CreateWikiPageDialog />
                 </div>
 
                 <nav className="flex-1 overflow-y-auto space-y-1">

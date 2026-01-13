@@ -3,12 +3,10 @@ import { validateRequest } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { createCustomField, deleteCustomField } from "./actions";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AddCustomFieldForm } from "./AddCustomFieldForm";
 
 export default async function SettingsPage() {
     const { user } = await validateRequest();
@@ -29,53 +27,7 @@ export default async function SettingsPage() {
                         <CardDescription>Define new fields for Clients and Deals</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form action={createCustomField} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Entity Type</Label>
-                                    <Select name="entityType" required>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select entity" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="CLIENT">Client</SelectItem>
-                                            <SelectItem value="LEAD">Lead/Deal</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Field Type</Label>
-                                    <Select name="type" required>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="TEXT">Text</SelectItem>
-                                            <SelectItem value="CURRENCY">Currency</SelectItem>
-                                            <SelectItem value="SELECT">Select</SelectItem>
-                                            <SelectItem value="MULTI_SELECT">Multi Select</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Display Name</Label>
-                                <Input name="name" placeholder="e.g. Budget Range" required />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Database Key (snake_case)</Label>
-                                <Input name="key" placeholder="e.g. budget_range" pattern="^[a-z_]+$" required />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Options (for Select types, comma separated)</Label>
-                                <Input name="options" placeholder="Option A, Option B" />
-                            </div>
-
-                            <Button type="submit">Create Field</Button>
-                        </form>
+                        <AddCustomFieldForm />
                     </CardContent>
                 </Card>
 

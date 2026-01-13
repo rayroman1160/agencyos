@@ -42,7 +42,7 @@ export async function createDeal(prevState: any, formData: FormData) {
     const result = createDealSchema.safeParse({ title, value, stageId, clientId: clientId || undefined });
 
     if (!result.success) {
-        return { error: "Invalid input" };
+        return { error: "Invalid input", success: false };
     }
 
     await db.deal.create({
@@ -57,7 +57,7 @@ export async function createDeal(prevState: any, formData: FormData) {
     });
 
     revalidatePath("/crm");
-    return { success: true };
+    return { success: true, error: "" };
 }
 
 export async function updateDealStage(dealId: string, newStageId: string) {

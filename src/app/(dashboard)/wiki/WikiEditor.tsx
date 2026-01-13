@@ -12,10 +12,11 @@ import { updateWikiPage } from "./actions";
 const renderers = {
     a: (props: any) => {
         const { href, children } = props;
-        if (ReactPlayer.canPlay(href)) {
+        if (ReactPlayer && ReactPlayer.canPlay && ReactPlayer.canPlay(href)) {
             return (
                 <div className="my-4 overflow-hidden rounded-lg border shadow-sm max-w-2xl">
                     <div className="relative pt-[56.25%] bg-black">
+                        {/* @ts-ignore */}
                         <ReactPlayer url={href} width="100%" height="100%" className="absolute top-0 left-0" controls />
                     </div>
                 </div>

@@ -28,7 +28,7 @@ export async function createServiceTemplate(prevState: any, formData: FormData) 
 
     const result = createTemplateSchema.safeParse({ name, description });
 
-    if (!result.success) return { error: "Invalid input" };
+    if (!result.success) return { error: "Invalid input", success: false };
 
     await db.serviceTemplate.create({
         data: {
@@ -38,7 +38,7 @@ export async function createServiceTemplate(prevState: any, formData: FormData) 
     });
 
     revalidatePath("/templates");
-    return { success: true };
+    return { success: true, error: "" };
 }
 
 export async function addTaskToTemplate(prevState: any, formData: FormData) {
@@ -59,7 +59,7 @@ export async function addTaskToTemplate(prevState: any, formData: FormData) {
         defaultRole: defaultRole || undefined
     });
 
-    if (!result.success) return { error: "Invalid input" };
+    if (!result.success) return { error: "Invalid input", success: false };
 
     await db.templateTask.create({
         data: {
@@ -73,5 +73,5 @@ export async function addTaskToTemplate(prevState: any, formData: FormData) {
 
     revalidatePath(`/templates/${templateId}`); // Ideally revalidate the specific page
     revalidatePath("/templates");
-    return { success: true };
+    return { success: true, error: "" };
 }
