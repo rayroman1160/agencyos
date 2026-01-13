@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------
+// 1. User & Authentication
+// --------------------------------------
+
+enum Role {
+  ADMIN
+  PARTNER
+  VA
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  role         Role      @default(VA)
+  avatarUrl    String?
+  
+  sessions     Session[]
+  tasks        Task[]    @relation("AssignedTasks")
+  createdDeals Deal[]    @relation("DealCreator")
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+// --------------------------------------
+// 2. CRM Module (Leads, Deals, Custom Fields)
+// --------------------------------------
+
+enum EntityType {
+  LEAD
+  CLIENT
+}
+
+enum FieldType {
+  TEXT
+  CURRENCY
+  SELECT
+  MULTI_SELECT
+}
+
+model CustomFieldDefinition {
+  id          String     @id @default(uuid())
+  entityType  EntityType // e.g. LEAD, CLIENT
+  name        String     // e.g. "Budget", "Source"
+  key         String     // e.g. "budget_usd" (used for code access)
+  type        FieldType
+  options     String[]   // For SELECT/MULTI_SELECT variants e.g. ["Referral", "Ads"]
+  order       Int        @default(0) // For UI display order
+
+  @@unique([entityType, key])
+}
+
+model Client {
+  id          String   @id @default(uuid())
+  name        String
+  email       String?
+  phone       String?
+  
+  // Custom values stored as JSON: { "budget_usd": 5000, "source": "Ads" }
+  customValues Json?   
+
+  deals       Deal[]
+  tasks       Task[]
+  wikiPages   WikiPage[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PipelineStage {
+  id      String @id @default(uuid())
+  name    String // "Discovery", "Proposal", etc.
+  order   Int    @default(0)
+  deals   Deal[]
+}
+
+model Deal {
+  id          String   @id @default(uuid())
+  title       String
+  value       Float    @default(0)
+  
+  stageId     String
+  stage       PipelineStage @relation(fields: [stageId], references: [id])
+  
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id])
+
+  creatorId   String
+  creator     User     @relation("DealCreator", fields: [creatorId], references: [id])
+
+  // Custom values stored as JSON
+  customValues Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// --------------------------------------
+// 3. Task Manager (Templates & Instantiation)
+// --------------------------------------
+
+model ServiceTemplate {
+  id            String         @id @default(uuid())
+  name          String         // e.g. "SEO Onboarding"
+  description   String?
+  
+  templateTasks TemplateTask[]
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model TemplateTask {
+  id                String          @id @default(uuid())
+  title             String
+  description       String?
+  relativeDueDays   Int             // e.g. 3 (Day 3 from start)
+  defaultRole       Role?           // e.g. If set to VA, the generated task is flagged for VAs
+  
+  serviceTemplateId String
+  serviceTemplate   ServiceTemplate @relation(fields: [serviceTemplateId], references: [id], onDelete: Cascade)
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  dueDate     DateTime?
+  lastNotificationSentAt DateTime? // Checks against this to avoid duplicate emails
+  
+  clientId    String?
+  client      Client?    @relation(fields: [clientId], references: [id])
+  
+  assigneeId  String?
+  assignee    User?      @relation("AssignedTasks", fields: [assigneeId], references: [id])
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// --------------------------------------
+// 4. Wiki / Knowledge Base
+// --------------------------------------
+
+model WikiPage {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   // Markdown content
+  
+  parentId    String?  // For nesting
+  parent      WikiPage? @relation("WikiHierarchy", fields: [parentId], references: [id])
+  children    WikiPage[] @relation("WikiHierarchy")
+
+  clientId    String?  // Create client-specific wikis
+  client      Client?  @relation(fields: [clientId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
